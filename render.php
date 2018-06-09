@@ -47,8 +47,9 @@
         return $file ? $file : "### Error: No such file '".$path."' ###";
     }
 
-    function inject ($text, $open, $close, $params) {
-        $text = preg_replace_callback($open.'.*'.$close, function ($match) use ($open, $close, $params) {
+    function inject ($text, $open, $close, $params, $escape) {
+        //$open.'[^('.$close.')]*'.$close
+        $text = preg_replace_callback('~'.$open.'[^\*}]*'.$close.'~', function ($match) use ($open, $close, $params, $escape) {
             $match = preg_replace('('.$open.'\s*|\s*'.$close.')', '', $match[0]);
             if ($match[0] == '$') {
                 if (array_key_exists(substr($match, 1), $params))
@@ -61,7 +62,7 @@
                 $match = localize(substr($match, 1));
             }
             
-            return $match;
+            return $escape ? htmlspecialchars($match) : $match;
         }, $text);
         return $text;
     }
@@ -69,7 +70,8 @@
     function render ($path, $params) {
         $text = loadFile($path);
         $text = preg_replace('/<!--[^!].*-->/', '', $text);
-        $text = inject($text, '{{', '}}', $params);
+        $text = inject($text, '{{', '}}', $params, true);
+        $text = inject($text, '{\*', '\*}', $params, false);
         return $text;
     }
 ?>
