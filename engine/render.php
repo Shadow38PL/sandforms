@@ -1,10 +1,15 @@
 <?php
     require_once 'conf.php';
 
-    function loadFile($path) {
+    function getFullPath($path) {
         global $webRoot;
         $path = preg_match('/\..+$/', $path) ? $path : $path.'.html';
-        $fullpath = $webRoot . $path;
+        return $webRoot . $path;
+    }
+
+    function loadFile($path) {
+        $fullpath = getFullPath($path);
+
         return file_exists($fullpath) ? file_get_contents($fullpath) : false;
     }
 
@@ -17,7 +22,17 @@
 
     function localize ($text) {
         global $defaultLanguage;
-        $lang = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE'])[0];
+        global $langCookieName;
+
+        $lang = isset($_COOKIE[$langCookieName]) ? $_COOKIE[$langCookieName] : false;
+
+        if ($lang) {
+            if (!$localization = getLocalization($lang))
+                $lang = explode('-', $lang)[0];
+        }
+
+        if (!$lang || !$localization = getLocalization($lang))
+            $lang = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE'])[0];
 
         if (!$localization = getLocalization($lang))
             $lang = explode('-', $lang)[0];
@@ -34,8 +49,10 @@
             $match = preg_replace('('.$open.'\s*|\s*'.$close.')', '', $match[0]);
             
             if ($match[0] == '@') {
-                $file = loadFile(substr($match, 1));
-                $match = $file ? $file : "### Error: No such file '" . $path . "' ###";
+                $path = substr($match, 1);
+                $fullpath = getFullPath($path);
+
+                $match = file_exists($fullpath) ? render($path) : "### Error: No such file '" . $path . "' ###";
             } else if ($match[0] == '$') {
                 $match = localize(substr($match, 1));
             } else if ($match[0] == '#') {

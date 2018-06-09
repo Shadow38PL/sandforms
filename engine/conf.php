@@ -5,6 +5,7 @@
 
     //Languages
     $defaultLanguage = 'en';
+    $langCookieName = 'lang';
 
     //Constants
     $constants = [];
