@@ -1,8 +1,14 @@
 <?php
-    $webroot = $_SERVER["DOCUMENT_ROOT"] . '/';
+    //File structure
+    $webRoot = $_SERVER["DOCUMENT_ROOT"] . '/';
+    $langFolder = 'lang';
 
+    //Languages
+    $defaultLanguage = 'en';
+
+    //Constants
     $constants = [];
-    $constants['production'] = false;
-    $constants['version'] = 1;
-    $constants['ver'] = $constants['production'] ? $constants['version'] : rand(0, 9999);
+    $constants['env'] = 'development';
+    $constants['prod_ver'] = 1;
+    $constants['ver'] = $constants['env'] == 'production' ? $constants['prod_ver'] : rand(0, 9999);
 ?>

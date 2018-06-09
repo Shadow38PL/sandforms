@@ -1,53 +1,31 @@
 <?php
     require_once 'conf.php';
 
-    $localizations = [
-        'en' => [
-            'motto' => 'Only best articles!'
-        ],
-        'pl' =>  [
-            'motto' => 'Tylko najlepsze artykuły!'
-        ]
-    ];
+    function loadFile($path) {
+        global $webRoot;
+        $path = preg_match('/\..+$/', $path) ? $path : $path.'.html';
+        $fullpath = $webRoot . $path;
+        return file_exists($fullpath) ? file_get_contents($fullpath) : false;
+    }
 
-    $defaultLanguage = 'en';
+    function getLocalization ($lang) {
+        global $langFolder;
+        $localization = loadFile($langFolder . '/' . $lang . '.json');
 
-    function isLocalized ($text, $lang) {
-        global $localizations;
-
-        if (array_key_exists($lang, $localizations))
-            if (array_key_exists($text, $localizations[$lang]))
-                return true;
-
-        return false;
+        return $localization ? json_decode($localization, true) : false;
     }
 
     function localize ($text) {
-        global $localizations;
         global $defaultLanguage;
         $lang = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE'])[0];
 
-        if (isLocalized($text, $lang))
-            return $localizations[$lang][$text];
-        
-        $lang = explode('-', $lang)[0];
+        if (!$localization = getLocalization($lang))
+            $lang = explode('-', $lang)[0];
 
-        if (isLocalized($text, $lang))
-            return $localizations[$lang][$text];
+        if (!$localization = getLocalization($lang))
+            $localization = getLocalization($defaultLanguage);
 
-        $lang = $defaultLanguage;
-
-        if (isLocalized($text, $lang))
-            return $localizations[$lang][$text];
-        
-        return "### Error: No lacalization for text '".$text."' ###";
-    }
-
-    function loadFile($path) {
-        global $webroot;
-        $path = preg_match('/\..+$/', $path) ? $path : $path.'.html';
-        $fullpath = $webroot . $path;
-        return file_exists($fullpath) ? file_get_contents($fullpath) : "### Error: No such file '".$path."' ###";
+        return array_key_exists($text, $localization) ? $localization[$text] : "### Error: No lacalization for text '" . $text . "' ###";
     }
 
     function inject ($text, $open, $close, $params, $escape) {
@@ -56,14 +34,15 @@
             $match = preg_replace('('.$open.'\s*|\s*'.$close.')', '', $match[0]);
             
             if ($match[0] == '@') {
-                $match = loadFile(substr($match, 1));
+                $file = loadFile(substr($match, 1));
+                $match = $file ? $file : "### Error: No such file '" . $path . "' ###";
             } else if ($match[0] == '$') {
                 $match = localize(substr($match, 1));
             } else if ($match[0] == '#') {
                 if (array_key_exists(substr($match, 1), $constants))
                     $match = $constants[substr($match, 1)];
                 else
-                    $match = "### Error: No such constant '".substr($match, 1)."' ###";
+                    $match = "### Error: No such constant '" . substr($match, 1) . "' ###";
             } else {
                 if (array_key_exists($match, $params)) {
                     if (is_array($params[$match]))
@@ -71,7 +50,7 @@
                     else
                         $match = $params[$match];
                 } else
-                    $match = "### Error: No such param '".$match."' ###";
+                    $match = "### Error: No such param '" . $match . "' ###";
             }
             
             return $escape ? htmlspecialchars($match) : $match;
@@ -81,6 +60,7 @@
 
     function renderOne ($path, $params = []) {
         $text = loadFile($path);
+        $text = $text ? $text : "### Error: No such file '" . $path . "' ###";
         $text = preg_replace('/<!--[^!].*-->/', '', $text);
         $text = inject($text, '{{', '}}', $params, true);
         $text = inject($text, '{\*', '\*}', $params, false);
