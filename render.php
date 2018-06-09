@@ -67,7 +67,7 @@
         return $text;
     }
     
-    function render ($path, $params) {
+    function render ($path, $params = []) {
         $text = loadFile($path);
         $text = preg_replace('/<!--[^!].*-->/', '', $text);
         $text = inject($text, '{{', '}}', $params, true);
