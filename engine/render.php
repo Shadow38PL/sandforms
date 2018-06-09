@@ -1,5 +1,5 @@
 <?php
-    require 'conf.php';
+    require_once 'conf.php';
 
     $localizations = [
         'en' => [
@@ -44,8 +44,9 @@
     }
 
     function loadFile($path) {
+        global $webroot;
         $path = preg_match('/\..+$/', $path) ? $path : $path.'.html';
-        $fullpath = $_SERVER["DOCUMENT_ROOT"] . '/' . $path;
+        $fullpath = $webroot . $path;
         return file_exists($fullpath) ? file_get_contents($fullpath) : "### Error: No such file '".$path."' ###";
     }
 
