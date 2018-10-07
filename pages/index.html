@@ -1,14 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Artykuły</title>
-    <link rel="stylesheet" href="style.css?{{ #ver }}">
+    <title>Test</title>
 </head>
 <body>
-    {* @templates/banner *}
-    {* articles *}
+    <!--! Sample project by Baaaaaaaaaaaaaaaaaaaaartek -->
+
+    <!-- Rendoerowanie templatki z tablicy -->
+    {{ banner => @templates/banner }}
+    <!-- Jeśli jest add to renderuj templatke -->
+    {{ ad ? @templates/ad }}
+    <!-- Renderuj każdy artukuł do templatki -->
+    {{ articles => @templates/article }}
 </body>
 </html>

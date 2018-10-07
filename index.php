@@ -1,12 +1,12 @@
 <?php
-    require_once 'engine/render.php';
+    require_once 'libs/render/render.php';
 
     $articles = [
-        ['title' => 'Tytuł 1', 'content' => 'Treść 1'],
-        ['title' => 'Tytuł 2', 'content' => 'Treść 2']
+        ['title' => 'Darmowe kursy frontendu!', 'content' => 'Mocno pojebany Artur uczy nowychj pajaców za darmo! CO ZA OKAZJA!!!'],
+        ['title' => 'Bartek pozwany o mobbing?!', 'content' => 'Jak podają najnowsze źródła Bartek znęca się psychicznie nad pracownikami za słabą znajomość JavaScript\'a']
     ];
 
-    $articles = render('templates/article', $articles);
+    $banner = ['title' => localize('main_page'), 'subtitle' => localize('cool_page')];
 
-    echo render('pages/index', ['articles' => $articles]);
+    echo render('pages/index', ['banner' => $banner, 'articles' => $articles, 'ad' => true], true);
 ?>

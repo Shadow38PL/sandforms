@@ -1,6 +1,0 @@
-RewriteEngine on
-RewriteCond %{DOCUMENT_ROOT}/$1 !-f
-
-RewriteRule ^/?(.*)$ engine/router.php?url=$1 [L,QSA]
-RewriteRule ^.*\.php$ engine/router.php?url=404 [L,QSA]
-RewriteRule ^.*\.html$ engine/router.php?url=404 [L,QSA]
